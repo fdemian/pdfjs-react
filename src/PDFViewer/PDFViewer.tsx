@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PDFPage from './PDFPage';
 import * as pdfjsLib from 'pdfjs-dist';
+import {ScrollArea} from '@radix-ui/themes';
 
 interface PDFVIewerParams {
     url: string;
@@ -37,10 +38,13 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
     if(!pdfRef || !pdfData)
         return <p>Loading....</p>;
 
+    
     return(
-    <div>
+    <div style={{marginLeft: '40%'}}>
         <h2>{url}</h2>
-        {Array.from(Array(pdfData.numPages)).map((x, index) => <PDFPage pdf={pdfRef} pageNumber={index+1} />)}
+        <ScrollArea type="always" scrollbars="vertical" style={{ height: 500, width: 900 }}>
+            {Array.from(Array(pdfData.numPages)).map((_, index) => <PDFPage pdf={pdfRef} pageNumber={index+1} />)}
+        </ScrollArea>
     </div>
     );
 }
