@@ -7,12 +7,16 @@ interface PDFPageParams {
 
 const PDFPage = ({pdf, pageNumber}:PDFPageParams):React.ReactElement => {
 
-    const canvasRef = useRef();  
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);  
 
-    const renderPage = useCallback((pageNum:number, pdf) => {
-        pdf && pdf.getPage(pageNum).then(function(page) {
+    const renderPage = useCallback((pageNum:number, pdf:any) => {
+        pdf && pdf.getPage(pageNum).then(function(page:any) {
           const viewport = page.getViewport({scale: 1.5});
-          const canvas = canvasRef.current;
+          const canvas:HTMLCanvasElement | null = canvasRef.current;
+
+          if(canvas === null)
+            return;
+
           canvas.height = viewport.height;
           canvas.width = viewport.width;
           const renderContext = {

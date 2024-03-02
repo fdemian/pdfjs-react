@@ -6,18 +6,22 @@ interface PDFVIewerParams {
     url: string;
 };
 
+interface PDFMetadata { 
+    info: Object; 
+    metadata: any;
+    numPages: number; 
+};
+
 const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
 
     pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
-    const [pdfRef, setPdfRef] = useState();
-    //const [currentPage, setCurrentPage] = useState(1);
-    const [pdfData, setPDFData] = useState(null);
+    const [pdfRef, setPdfRef] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+    //const [currentPage, setCurrentPage] = useState<number>(1);
+    const [pdfData, setPDFData] = useState< PDFMetadata | null>(null);
 
-    useEffect(() => {
-      //const metadata = await this.pdfDocument.getMetadata();
-      
+    useEffect(() => {      
       const loadingTask = pdfjsLib.getDocument(url);
-      loadingTask.promise.then(async (loadedPdf) => {
+      loadingTask.promise.then(async (loadedPdf:pdfjsLib.PDFDocumentProxy ) => {
         setPdfRef(loadedPdf);
         const metadata = await loadedPdf.getMetadata();
         const data = {
@@ -25,7 +29,7 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
            ...metadata
         };
         setPDFData(data);
-      }, function (reason) {
+      }, function (reason:string) {
         console.error(reason);
       });
     }, [])
