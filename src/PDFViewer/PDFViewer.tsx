@@ -40,9 +40,7 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
     return(
     <div>
         <h2>{url}</h2>
-        <PDFPage pdf={pdfRef} pageNumber={1} />
-        <PDFPage pdf={pdfRef} pageNumber={2} />
-        <PDFPage pdf={pdfRef} pageNumber={3} />
+        {Array.from(Array(pdfData.numPages)).map((x, index) => <PDFPage pdf={pdfRef} pageNumber={index+1} />)}
     </div>
     );
 }
