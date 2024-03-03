@@ -1,6 +1,7 @@
 import React from 'react';
+import { PageControlsParams } from './pdfTypes';
 
-const PageControls = ({currentPage, setCurrentPage, numPages, renderedPages }):React.ReactElement => {
+const PageControls = ({currentPage, setCurrentPage, numPages, renderedPages }:PageControlsParams):React.ReactElement => {
 
     const nextPageFn = async () => {
        if(currentPage < numPages) {
@@ -8,7 +9,7 @@ const PageControls = ({currentPage, setCurrentPage, numPages, renderedPages }):R
         const nextPage = renderedPages.find(p => p.number === newPageNumber);
         if(nextPage) {
           setCurrentPage(newPageNumber);
-          nextPage.page.current.scrollIntoView();
+          nextPage.page.current?.scrollIntoView();
         }
        }
     };
@@ -19,7 +20,7 @@ const PageControls = ({currentPage, setCurrentPage, numPages, renderedPages }):R
         const prevPage = renderedPages.find(p => p.number === newPageNumber);
         if(prevPage) {
             setCurrentPage(newPageNumber);
-            prevPage.page.current.scrollIntoView();
+            prevPage.page.current?.scrollIntoView();
         }
        }
     }

@@ -2,32 +2,26 @@ import React, { useEffect, useState } from 'react';
 import PDFPage from './PDFPage';
 import PageControls from './PageControls';
 import * as pdfjsLib from 'pdfjs-dist';
-import { PDFVIewerParams,  PDFMetadata } from './pdfTypes';
+import { PDFVIewerParams,  PDFMetadata, PageType} from './pdfTypes';
 import { ScrollArea } from '@radix-ui/themes';
 
-function uniq(a) {
-    return a.sort().filter(function(item, pos, ary) {
-        return !pos || item != ary[pos - 1];
-    });
-}
 
 const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
-
     pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
     const [pdfRef, setPdfRef] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [pdfData, setPDFData] = useState< PDFMetadata | null>(null);
-    const [renderedPages, setRenderedPages ] = useState([]);
+    const [renderedPages, setRenderedPages] = useState<PageType[]>([]);
 
     // Todo: this is a hack.
-    let rendered = [];
+    let rendered:PageType[] = [];
 
-    const addPage = (page) => {
+    const addPage = (page:PageType) => {
        const inArray = rendered.find(p => p.number === page.number);
        if(!inArray){
            rendered = [...rendered, page];
        }
-       if(rendered.length === pdfData.numPages){
+       if(pdfData && rendered.length === pdfData.numPages){
           setRenderedPages(rendered);
        }
     }
