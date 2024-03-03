@@ -1,24 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import PDFPage from './PDFPage';
+import PageControls from './PageControls';
 import * as pdfjsLib from 'pdfjs-dist';
-import { ScrollArea, Card } from '@radix-ui/themes';
+import { PDFVIewerParams,  PDFMetadata } from './pdfTypes';
+import { ScrollArea } from '@radix-ui/themes';
 
-interface PDFVIewerParams {
-    url: string;
-};
-
-interface PDFMetadata { 
-    info: Object; 
-    metadata: any;
-    numPages: number; 
-};
+function uniq(a) {
+    return a.sort().filter(function(item, pos, ary) {
+        return !pos || item != ary[pos - 1];
+    });
+}
 
 const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
 
     pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
     const [pdfRef, setPdfRef] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
-    //const [currentPage, setCurrentPage] = useState<number>(1);
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const [pdfData, setPDFData] = useState< PDFMetadata | null>(null);
+    const [renderedPages, setRenderedPages ] = useState([]);
+
+    // Todo: this is a hack.
+    let rendered = [];
+
+    const addPage = (page) => {
+       const inArray = rendered.find(p => p.number === page.number);
+       if(!inArray){
+           rendered = [...rendered, page];
+       }
+       if(rendered.length === pdfData.numPages){
+          setRenderedPages(rendered);
+       }
+    }
 
     useEffect(() => {      
       const loadingTask = pdfjsLib.getDocument(url);
@@ -38,12 +50,17 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
     if(!pdfRef || !pdfData)
         return <p>Loading....</p>;
 
-    
     return(
     <div style={{marginLeft: '40%'}}>
         <h2>{url}</h2>
-        <ScrollArea type="always" scrollbars="vertical" style={{ height: 500, width: 900, border: '2px solid gainsboro' }}>
-            {Array.from(Array(pdfData.numPages)).map((_, index) => <PDFPage pdf={pdfRef} pageNumber={index+1} />)}
+        <PageControls 
+          currentPage={currentPage} 
+          setCurrentPage={setCurrentPage} 
+          numPages={pdfData.numPages}
+          renderedPages={renderedPages}
+        />
+        <ScrollArea type="always" scrollbars="vertical" style={{ border: '2px solid gainsboro', width: '700px', height: '500px' }}>
+            {Array.from(Array(pdfData.numPages)).map((_, index) => <PDFPage pdf={pdfRef} pageNumber={index+1} addPage={addPage} />)}
         </ScrollArea>
     </div>
     );
