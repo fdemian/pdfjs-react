@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PDFPage from './PDFPage';
 import PageControls from './PageControls';
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFVIewerParams,  PDFMetadata, PageType} from './pdfTypes';
 import { ScrollArea } from '@radix-ui/themes';
 
-
 const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
     pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
     const [pdfRef, setPdfRef] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+    const printAreaRef = useRef();
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [pdfData, setPDFData] = useState< PDFMetadata | null>(null);
+    const [pdfData, setPDFData] = useState<PDFMetadata | null>(null);
+    const [pageScale, setPageScale] = useState<number>(1);
     const [renderedPages, setRenderedPages] = useState<PageType[]>([]);
 
     // Todo: this is a hack.
@@ -25,7 +26,7 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
           setRenderedPages(rendered);
        }
     }
-
+    
     useEffect(() => {      
       const loadingTask = pdfjsLib.getDocument(url);
       loadingTask.promise.then(async (loadedPdf:pdfjsLib.PDFDocumentProxy ) => {
@@ -44,6 +45,14 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
     if(!pdfRef || !pdfData)
         return <p>Loading....</p>;
 
+
+    const changeZoom = (newScale:number) => setPageScale(newScale);
+
+    const printDocument = async () => {
+      console.clear();
+      console.log("@@@@@@@");
+    }
+
     return(
     <div style={{marginLeft: '40%'}}>
         <h2>{url}</h2>
@@ -52,10 +61,15 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
           setCurrentPage={setCurrentPage} 
           numPages={pdfData.numPages}
           renderedPages={renderedPages}
+          changeZoom={changeZoom}
+          pageScale={pageScale}
+          printDocument={printDocument}
         />
         <ScrollArea type="always" scrollbars="vertical" style={{ border: '2px solid gainsboro', width: '700px', height: '500px' }}>
-            {Array.from(Array(pdfData.numPages)).map((_, index) => <PDFPage pdf={pdfRef} pageNumber={index+1} addPage={addPage} />)}
+                {Array.from(Array(pdfData.numPages)).map((_, index) => <PDFPage pageScale={pageScale} pdf={pdfRef} pageNumber={index+1} addPage={addPage} />)}
         </ScrollArea>
+        <h1>VERLA</h1>
+        <iframe ref={printAreaRef}></iframe>
     </div>
     );
 }

@@ -8,8 +8,11 @@ export interface PageType {
 export interface PageControlsParams {
   currentPage: number;
   setCurrentPage: (page:number) => void; 
+  changeZoom: (newScale:number) => void;
+  printDocument: () => void;
   numPages: number;
   renderedPages: PageType[];
+  pageScale: number;
 };
 
 export interface PDFVIewerParams {
@@ -25,5 +28,6 @@ export interface PDFMetadata {
 export interface PDFPageParams {
     pdf: any;
     pageNumber: number;
+    pageScale: number;
     addPage: (page:PageType) => void;
 };

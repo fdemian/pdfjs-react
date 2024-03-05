@@ -1,17 +1,11 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { PDFPageParams } from './pdfTypes';
 
-const SCALE = 1;
-
-const PDFPage = ({pdf, pageNumber, addPage}:PDFPageParams):React.ReactElement => {
-
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);  
-    
-    const renderPage = useCallback((pageNum:number, pdf:any) => {
-        //let pageRendering = true;
-    
+const PDFPage = ({pdf, pageNumber, pageScale, addPage}:PDFPageParams):React.ReactElement => {
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const renderPage = useCallback((pageNum:number, pdf:any, pageScale:number) => {
         pdf && pdf.getPage(pageNum).then(function(page:any) {
-          const viewport = page.getViewport({ scale: SCALE });
+          const viewport = page.getViewport({ scale: pageScale });
           const canvas:HTMLCanvasElement | null = canvasRef.current;
 
           if(canvas === null)
@@ -46,8 +40,8 @@ const PDFPage = ({pdf, pageNumber, addPage}:PDFPageParams):React.ReactElement =>
     }, [pdf]);
 
     useEffect(() => {
-        renderPage(pageNumber, pdf);
-    }, [])
+        renderPage(pageNumber, pdf, pageScale);
+    }, [pageScale])
 
     return (<canvas id={`page-${pageNumber}`} key={`canvas-#${pageNumber}`} ref={canvasRef}></canvas>);
 };
