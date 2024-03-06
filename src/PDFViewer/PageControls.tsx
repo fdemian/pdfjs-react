@@ -1,6 +1,5 @@
 import React from 'react';
 import { PageControlsParams } from './pdfTypes';
-import ReactToPrint from "react-to-print";
 
 const PageControls = (props:PageControlsParams):React.ReactElement => {
 
@@ -11,7 +10,7 @@ const PageControls = (props:PageControlsParams):React.ReactElement => {
         renderedPages, 
         changeZoom, 
         pageScale, 
-        printAreaRef 
+        printDocument 
     } = props;
 
     const nextPageFn = async () => {
@@ -53,10 +52,7 @@ const PageControls = (props:PageControlsParams):React.ReactElement => {
         <button onClick={zoomIn}>Zoom IN</button> &nbsp;
         <span>{pageScale*100}%</span>
         <button onClick={zoomOut}>Zoom OUT</button> &nbsp;
-        <ReactToPrint
-          trigger={() => <button>PRINT</button>}
-          content={() => printAreaRef.current}
-        />
+        <button onClick={printDocument}>PRINT-X</button>
     </div>
     );
 }

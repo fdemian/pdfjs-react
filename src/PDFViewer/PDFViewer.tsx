@@ -4,15 +4,21 @@ import PageControls from './PageControls';
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFVIewerParams,  PDFMetadata, PageType} from './pdfTypes';
 import { ScrollArea } from '@radix-ui/themes';
+import { useReactToPrint } from 'react-to-print';
 
 const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
     pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
     const [pdfRef, setPdfRef] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
-    const printAreaRef = useRef();
+    const printAreaRef = useRef<any>();
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [pdfData, setPDFData] = useState<PDFMetadata | null>(null);
     const [pageScale, setPageScale] = useState<number>(1);
     const [renderedPages, setRenderedPages] = useState<PageType[]>([]);
+    const handlePrint = () => {
+      if(!printAreaRef || printAreaRef.current === undefined)
+          return;
+      useReactToPrint({ content: () => printAreaRef.current });
+    }
 
     // Todo: this is a hack.
     let rendered:PageType[] = [];
@@ -57,7 +63,7 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
           renderedPages={renderedPages}
           changeZoom={changeZoom}
           pageScale={pageScale}
-          printAreaRef={printAreaRef}
+          printDocument={handlePrint}
         />
         <ScrollArea type="always" scrollbars="vertical" style={{ border: '2px solid gainsboro', width: '700px', height: '500px' }}>
              <div ref={printAreaRef}>
