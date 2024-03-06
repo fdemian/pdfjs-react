@@ -38,6 +38,7 @@ const RAW_RUNTIME_STATE =
           ["pdfjs-dist", "npm:4.0.379"],\
           ["react", "npm:18.2.0"],\
           ["react-dom", "virtual:20219fe66f27c230c851546c8312b9e0e6996d20b247c2878505b6916e705791d47a8e4687bcd1ac0831bef1fbde37c32c1b4a43e8291fe1a3a97a323f6b687a#npm:18.2.0"],\
+          ["react-to-print", "virtual:20219fe66f27c230c851546c8312b9e0e6996d20b247c2878505b6916e705791d47a8e4687bcd1ac0831bef1fbde37c32c1b4a43e8291fe1a3a97a323f6b687a#npm:2.15.1"],\
           ["typescript", "patch:typescript@npm%3A5.3.3#optional!builtin<compat/typescript>::version=5.3.3&hash=e012d7"],\
           ["vite", "virtual:20219fe66f27c230c851546c8312b9e0e6996d20b247c2878505b6916e705791d47a8e4687bcd1ac0831bef1fbde37c32c1b4a43e8291fe1a3a97a323f6b687a#npm:5.1.4"]\
         ],\
@@ -4316,6 +4317,7 @@ const RAW_RUNTIME_STATE =
           ["pdfjs-dist", "npm:4.0.379"],\
           ["react", "npm:18.2.0"],\
           ["react-dom", "virtual:20219fe66f27c230c851546c8312b9e0e6996d20b247c2878505b6916e705791d47a8e4687bcd1ac0831bef1fbde37c32c1b4a43e8291fe1a3a97a323f6b687a#npm:18.2.0"],\
+          ["react-to-print", "virtual:20219fe66f27c230c851546c8312b9e0e6996d20b247c2878505b6916e705791d47a8e4687bcd1ac0831bef1fbde37c32c1b4a43e8291fe1a3a97a323f6b687a#npm:2.15.1"],\
           ["typescript", "patch:typescript@npm%3A5.3.3#optional!builtin<compat/typescript>::version=5.3.3&hash=e012d7"],\
           ["vite", "virtual:20219fe66f27c230c851546c8312b9e0e6996d20b247c2878505b6916e705791d47a8e4687bcd1ac0831bef1fbde37c32c1b4a43e8291fe1a3a97a323f6b687a#npm:5.1.4"]\
         ],\
@@ -4504,6 +4506,32 @@ const RAW_RUNTIME_STATE =
         ],\
         "packagePeers": [\
           "@types/react",\
+          "react"\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["react-to-print", [\
+      ["npm:2.15.1", {\
+        "packageLocation": "../../.yarn/berry/cache/react-to-print-npm-2.15.1-11873a9fc7-10c0.zip/node_modules/react-to-print/",\
+        "packageDependencies": [\
+          ["react-to-print", "npm:2.15.1"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
+      ["virtual:20219fe66f27c230c851546c8312b9e0e6996d20b247c2878505b6916e705791d47a8e4687bcd1ac0831bef1fbde37c32c1b4a43e8291fe1a3a97a323f6b687a#npm:2.15.1", {\
+        "packageLocation": "./.yarn/__virtual__/react-to-print-virtual-91d25b9073/3/.yarn/berry/cache/react-to-print-npm-2.15.1-11873a9fc7-10c0.zip/node_modules/react-to-print/",\
+        "packageDependencies": [\
+          ["react-to-print", "virtual:20219fe66f27c230c851546c8312b9e0e6996d20b247c2878505b6916e705791d47a8e4687bcd1ac0831bef1fbde37c32c1b4a43e8291fe1a3a97a323f6b687a#npm:2.15.1"],\
+          ["@types/react", "npm:18.2.61"],\
+          ["@types/react-dom", "npm:18.2.19"],\
+          ["react", "npm:18.2.0"],\
+          ["react-dom", "virtual:20219fe66f27c230c851546c8312b9e0e6996d20b247c2878505b6916e705791d47a8e4687bcd1ac0831bef1fbde37c32c1b4a43e8291fe1a3a97a323f6b687a#npm:18.2.0"]\
+        ],\
+        "packagePeers": [\
+          "@types/react-dom",\
+          "@types/react",\
+          "react-dom",\
           "react"\
         ],\
         "linkType": "HARD"\

@@ -3478,6 +3478,7 @@ __metadata:
     pdfjs-dist: "npm:^4.0.379"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
+    react-to-print: "npm:^2.15.1"
     typescript: "npm:^5.3.3"
     vite: "npm:^5.1.4"
   languageName: unknown
@@ -3607,6 +3608,16 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 10c0/6d66f3bdb65e1ec79089f80314da97c9a005087a04ee034255a5de129a4c0d9fd0bf99fa7bf642781ac2dc745ca687aae3de082bd8afdd0d117bc953241e15ad
+  languageName: node
+  linkType: hard
+
+"react-to-print@npm:^2.15.1":
+  version: 2.15.1
+  resolution: "react-to-print@npm:2.15.1"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: 10c0/26ee1eb3a30031c58ae45cdc8db11f86150509a1dcb190d703333b5df65deb1eb0bc9f856261466909b2a9567cee7894fcd71e637a1a722be2bbf93740349c61
   languageName: node
   linkType: hard
 

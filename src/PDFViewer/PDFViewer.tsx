@@ -45,13 +45,7 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
     if(!pdfRef || !pdfData)
         return <p>Loading....</p>;
 
-
     const changeZoom = (newScale:number) => setPageScale(newScale);
-
-    const printDocument = async () => {
-      console.clear();
-      console.log("@@@@@@@");
-    }
 
     return(
     <div style={{marginLeft: '40%'}}>
@@ -63,13 +57,13 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
           renderedPages={renderedPages}
           changeZoom={changeZoom}
           pageScale={pageScale}
-          printDocument={printDocument}
+          printAreaRef={printAreaRef}
         />
         <ScrollArea type="always" scrollbars="vertical" style={{ border: '2px solid gainsboro', width: '700px', height: '500px' }}>
-                {Array.from(Array(pdfData.numPages)).map((_, index) => <PDFPage pageScale={pageScale} pdf={pdfRef} pageNumber={index+1} addPage={addPage} />)}
+             <div ref={printAreaRef}>
+              {Array.from(Array(pdfData.numPages)).map((_, index) => <PDFPage pageScale={pageScale} pdf={pdfRef} pageNumber={index+1} addPage={addPage} />)}
+            </div>
         </ScrollArea>
-        <h1>VERLA</h1>
-        <iframe ref={printAreaRef}></iframe>
     </div>
     );
 }
