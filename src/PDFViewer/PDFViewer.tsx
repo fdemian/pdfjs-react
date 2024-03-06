@@ -37,8 +37,10 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
       loadingTask.promise.then(async (loadedPdf:pdfjsLib.PDFDocumentProxy ) => {
         setPdfRef(loadedPdf);
         const metadata = await loadedPdf.getMetadata();
+        const attachments = await loadedPdf.getAttachments();
         const data = {
            numPages: loadedPdf.numPages,
+           attachments: attachments,
            ...metadata
         };
         setPDFData(data);
@@ -51,6 +53,9 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
         return <p>Loading....</p>;
 
     const changeZoom = (newScale:number) => setPageScale(newScale);
+
+    console.log(pdfData.attachments);
+    console.log("==-------------->");
 
     return(
     <>

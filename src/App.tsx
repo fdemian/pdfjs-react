@@ -16,7 +16,7 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <PDFVIewer url="/ctm.pdf" />
+      <PDFVIewer url="/pdf-open-parameters.pdf" />
     </Theme>
   )
 }
