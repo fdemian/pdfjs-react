@@ -14,12 +14,10 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
     const [pdfData, setPDFData] = useState<PDFMetadata | null>(null);
     const [pageScale, setPageScale] = useState<number>(1);
     const [renderedPages, setRenderedPages] = useState<PageType[]>([]);
-    const handlePrint = () => {
-      if(!printAreaRef || printAreaRef.current === undefined)
-          return;
-      useReactToPrint({ content: () => printAreaRef.current });
-    }
-
+    const handlePrint = useReactToPrint({
+      content: () => printAreaRef.current,
+    });
+  
     // Todo: this is a hack.
     let rendered:PageType[] = [];
 

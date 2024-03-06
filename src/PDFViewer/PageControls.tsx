@@ -52,7 +52,7 @@ const PageControls = (props:PageControlsParams):React.ReactElement => {
         <button onClick={zoomIn}>Zoom IN</button> &nbsp;
         <span>{pageScale*100}%</span>
         <button onClick={zoomOut}>Zoom OUT</button> &nbsp;
-        <button onClick={printDocument}>PRINT-X</button>
+        <button onClick={printDocument}>PRINT</button>
     </div>
     );
 }
