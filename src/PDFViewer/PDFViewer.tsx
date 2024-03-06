@@ -5,6 +5,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { PDFVIewerParams,  PDFMetadata, PageType} from './pdfTypes';
 import { ScrollArea } from '@radix-ui/themes';
 import { useReactToPrint } from 'react-to-print';
+import './PDFViewer.css';
 
 const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
     pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
@@ -52,23 +53,31 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
     const changeZoom = (newScale:number) => setPageScale(newScale);
 
     return(
-    <div style={{marginLeft: '40%'}}>
+    <>
         <h2>{url}</h2>
-        <PageControls 
-          currentPage={currentPage} 
-          setCurrentPage={setCurrentPage} 
-          numPages={pdfData.numPages}
-          renderedPages={renderedPages}
-          changeZoom={changeZoom}
-          pageScale={pageScale}
-          printDocument={handlePrint}
-        />
-        <ScrollArea type="always" scrollbars="vertical" style={{ border: '2px solid gainsboro', width: '700px', height: '500px' }}>
-             <div ref={printAreaRef}>
+        <div className="pdf-viewer">
+          <PageControls 
+            currentPage={currentPage} 
+            setCurrentPage={setCurrentPage} 
+            numPages={pdfData.numPages}
+            renderedPages={renderedPages}
+            changeZoom={changeZoom}
+            pageScale={pageScale}
+            printDocument={handlePrint}
+          />
+          <br />
+          <ScrollArea 
+              type="always" 
+              scrollbars="vertical" 
+              style={{ border: '2px solid gainsboro', textAlign:'center', width: '700px', height: '700px', backgroundColor:'gainsboro' }}
+          >
+            <span ref={printAreaRef} >
               {Array.from(Array(pdfData.numPages)).map((_, index) => <PDFPage pageScale={pageScale} pdf={pdfRef} pageNumber={index+1} addPage={addPage} />)}
-            </div>
-        </ScrollArea>
-    </div>
+            </span>
+          </ScrollArea>
+          <br />
+        </div>
+    </>
     );
 }
 
