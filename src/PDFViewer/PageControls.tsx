@@ -35,13 +35,9 @@ const PageControls = (props:PageControlsParams):React.ReactElement => {
        }
     }
 
-    const zoomIn = () => {
-        changeZoom(pageScale+0.1);
-    };
-
-    const zoomOut = () => {
-        changeZoom(pageScale-0.1);
-    };
+    //
+    const zoomIn = () => changeZoom(pageScale+0.1);
+    const zoomOut = () => changeZoom(pageScale-0.1);
     
     return(
     <div>
@@ -50,7 +46,7 @@ const PageControls = (props:PageControlsParams):React.ReactElement => {
         <span>{currentPage}/{numPages}</span> &nbsp;
         &nbsp;
         <button onClick={zoomIn}>Zoom IN</button> &nbsp;
-        <span>{pageScale*100}%</span>
+        <span>{Math.floor(pageScale*100)}%</span>
         <button onClick={zoomOut}>Zoom OUT</button> &nbsp;
         <button onClick={printDocument}>PRINT</button>
     </div>

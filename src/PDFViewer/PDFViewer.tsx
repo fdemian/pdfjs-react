@@ -54,8 +54,10 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
 
     const changeZoom = (newScale:number) => setPageScale(newScale);
 
-    console.log(pdfData.attachments);
-    console.log("==-------------->");
+    //console.clear();
+    //console.log("==---------------------------------->");
+    //console.log(pdfData);
+    //console.log("==---------------------------------->");
 
     return(
     <>
@@ -73,7 +75,7 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
           <br />
           <ScrollArea 
               type="always" 
-              scrollbars="vertical" 
+              scrollbars={pageScale <= 1 ? "vertical" : "vertical, horizontal"}
               style={{ border: '2px solid gainsboro', textAlign:'center', width: '700px', height: '700px', backgroundColor:'gainsboro' }}
           >
             <span ref={printAreaRef} >
