@@ -5,6 +5,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { PDFVIewerParams,  PDFMetadata, PageType} from './pdfTypes';
 import { ScrollArea } from '@radix-ui/themes';
 import { useReactToPrint } from 'react-to-print';
+import { searchText } from './PDFSearch/searchFunctions.ts';
 
 import './PDFViewer.css';
 
@@ -55,35 +56,12 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
 
     const changeZoom = (newScale:number) => setPageScale(newScale);
 
-    const search = () => {
+    const searchDocument = () => {
       console.clear();
       console.log(pdfRef);
       console.log("===============");
-     
-      /*
-      const eventBus = new EventBus();
-      const pdfLinkService = new PDFLinkService({ eventBus });      
-      const pdfFindController = new PDFFindController({
-        eventBus,
-        linkService: pdfLinkService,
-      });
-      pdfFindController.setDocument(pdfRef);
-      const eventState = Object.assign(
-        Object.create(null),
-        {
-          source: this,
-          type: "",
-          query: null,
-          caseSensitive: false,
-          entireWord: false,
-          findPrevious: false,
-          matchDiacritics: false,
-        },
-        state
-      );
-      eventBus.dispatch("find", eventState);
-      */
 
+      searchText(pdfRef, renderedPages.length, "URL");
     }
 
     return(
@@ -98,6 +76,7 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
             changeZoom={changeZoom}
             pageScale={pageScale}
             printDocument={handlePrint}
+            searchDocument={searchDocument}
           />
           <br />
           <ScrollArea 

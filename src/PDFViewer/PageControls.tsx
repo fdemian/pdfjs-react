@@ -10,7 +10,8 @@ const PageControls = (props:PageControlsParams):React.ReactElement => {
         renderedPages, 
         changeZoom, 
         pageScale, 
-        printDocument 
+        printDocument,
+        searchDocument
     } = props;
 
     const nextPageFn = async () => {
@@ -49,6 +50,7 @@ const PageControls = (props:PageControlsParams):React.ReactElement => {
         <span>{Math.floor(pageScale*100)}%</span>
         <button onClick={zoomOut}>Zoom OUT</button> &nbsp;
         <button onClick={printDocument}>PRINT</button>
+        <button onClick={searchDocument}>SEARCH</button>
     </div>
     );
 }
