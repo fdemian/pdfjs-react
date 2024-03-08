@@ -463,6 +463,400 @@ const CharacterType = {
   }
 
 
-  export { normalize, CharacterType, getCharacterType, getNormalizeWithNFKC };
+  const convertToRegExpString = (query, hasDiacritics, matchDiacritics) => {
+    let isUnicode = false;
+    query = query.replaceAll(
+      SPECIAL_CHARS_REG_EXP,
+      (
+        match,
+        p1 /* to escape */,
+        p2 /* punctuation */,
+        p3 /* whitespaces */,
+        p4 /* diacritics */,
+        p5 /* letters */
+      ) => {
+        // We don't need to use a \s for whitespaces since all the different
+        // kind of whitespaces are replaced by a single " ".
+
+        if (p1) {
+          // Escape characters like *+?... to not interfer with regexp syntax.
+          return `[ ]*\\${p1}[ ]*`;
+        }
+        if (p2) {
+          // Allow whitespaces around punctuation signs.
+          return `[ ]*${p2}[ ]*`;
+        }
+        if (p3) {
+          // Replace spaces by \s+ to be sure to match any spaces.
+          return "[ ]+";
+        }
+        if (matchDiacritics) {
+          return p4 || p5;
+        }
+
+        if (p4) {
+          // Diacritics are removed with few exceptions.
+          return DIACRITICS_EXCEPTION.has(p4.charCodeAt(0)) ? p4 : "";
+        }
+
+        // A letter has been matched and it can be followed by any diacritics
+        // in normalized text.
+        if (hasDiacritics) {
+          isUnicode = true;
+          return `${p5}\\p{M}*`;
+        }
+        return p5;
+      }
+    );
+
+    const trailingSpaces = "[ ]*";
+    if (query.endsWith(trailingSpaces)) {
+      // The [ ]* has been added in order to help to match "foo . bar" but
+      // it doesn't make sense to match some whitespaces after the dot
+      // when it's the last character.
+      query = query.slice(0, query.length - trailingSpaces.length);
+    }
+
+    if (matchDiacritics) {
+      // aX must not match aXY.
+      if (hasDiacritics) {
+        DIACRITICS_EXCEPTION_STR ||= String.fromCharCode(
+          ...DIACRITICS_EXCEPTION
+        );
+
+        isUnicode = true;
+        query = `${query}(?=[${DIACRITICS_EXCEPTION_STR}]|[^\\p{M}]|$)`;
+      }
+    }
+
+    return [isUnicode, query];
+  }
+
+
+  /**
+   * Determine if the search query constitutes a "whole word", by comparing the
+   * first/last character type with the preceding/following character type.
+   */
+  const isEntireWord= (content, startIdx, length) => {
+    let match = content
+      .slice(0, startIdx)
+      .match(NOT_DIACRITIC_FROM_END_REG_EXP);
+    if (match) {
+      const first = content.charCodeAt(startIdx);
+      const limit = match[1].charCodeAt(0);
+      if (getCharacterType(first) === getCharacterType(limit)) {
+        return false;
+      }
+    }
+
+    match = content
+      .slice(startIdx + length)
+      .match(NOT_DIACRITIC_FROM_START_REG_EXP);
+    if (match) {
+      const last = content.charCodeAt(startIdx + length - 1);
+      const limit = match[1].charCodeAt(0);
+      if (getCharacterType(last) === getCharacterType(limit)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+/**
+ * Use binary search to find the index of the first item in a given array which
+ * passes a given condition. The items are expected to be sorted in the sense
+ * that if the condition is true for one item in the array, then it is also true
+ * for all following items.
+ *
+ * @returns {number} Index of the first array element to pass the test,
+ *                   or |items.length| if no such element exists.
+ */
+function binarySearchFirstItem(items, condition, start = 0) {
+  let minIndex = start;
+  let maxIndex = items.length - 1;
+
+  if (maxIndex < 0 || !condition(items[maxIndex])) {
+    return items.length;
+  }
+  if (condition(items[minIndex])) {
+    return minIndex;
+  }
+
+  while (minIndex < maxIndex) {
+    const currentIndex = (minIndex + maxIndex) >> 1;
+    const currentItem = items[currentIndex];
+    if (condition(currentItem)) {
+      maxIndex = currentIndex;
+    } else {
+      minIndex = currentIndex + 1;
+    }
+  }
+  return minIndex; /* === maxIndex */
+}
+
+
+// Determine the original, non-normalized, match index such that highlighting of
+// search results is correct in the `textLayer` for strings containing e.g. "½"
+// characters; essentially "inverting" the result of the `normalize` function.
+function getOriginalIndex(diffs, pos, len) {
+  if (!diffs) {
+    return [pos, len];
+  }
+
+  // First char in the new string.
+  const start = pos;
+  // Last char in the new string.
+  const end = pos + len - 1;
+  let i = binarySearchFirstItem(diffs, x => x[0] >= start);
+  if (diffs[i][0] > start) {
+    --i;
+  }
+
+  let j = binarySearchFirstItem(diffs, x => x[0] >= end, i);
+  if (diffs[j][0] > end) {
+    --j;
+  }
+
+  // First char in the old string.
+  const oldStart = start + diffs[i][1];
+
+  // Last char in the old string.
+  const oldEnd = end + diffs[j][1];
+  const oldLen = oldEnd + 1 - oldStart;
+
+  return [oldStart, oldLen];
+}
+
+const calculateRegExpMatch = (query, entireWord, pageIndex, pageContent, pageDiffs) => {
+  const matches = [];
+  const matchesLength = [];
+  if (!query) {
+    // The query can be empty because some chars like diacritics could have
+    // been stripped out.
+    return;
+  }
+  const diffs = pageDiffs[pageIndex];
+  let match;
+  while ((match = query.exec(pageContent[0])) !== null) {
+    if (
+      entireWord &&
+      !isEntireWord(pageContent[0], match.index, match[0].length)
+    ) {
+      continue;
+    }
+
+    /*
+    const [matchPos, matchLen] = getOriginalIndex(
+      diffs,
+      match.index,
+      match[0].length
+    );*/
+
+    if (/*matchLen*/ true) {
+      matches.push(match.index);
+      matchesLength.push(match[0].length);
+    }
+  }
+
+  return { matches: matches, matchesLength: matches };
+}
+
+
+const buildXfaTextContentItems = async (pdfPage, textDivs) => {
+  const text = await pdfPage.getTextContent();
+  const items = [];
+  for (const item of text.items) {
+    items.push(item.str);
+  }
+  
+  return {
+    textDivs: textDivs, 
+    items: items
+  }
+}
+
+const convertMatches = (pdfPage, matches, matchesLength) => {
+  
+  // Early exit if there is nothing to convert.
+  if (!matches) {
+    return [];
+  }
+
+  const { textContentItemsStr } = this;
+
+  let i = 0,
+    iIndex = 0;
+  const end = textContentItemsStr.length - 1;
+  const result = [];
+
+  for (let m = 0, mm = matches.length; m < mm; m++) {
+    // Calculate the start position.
+    let matchIdx = matches[m];
+
+    // Loop over the divIdxs.
+    while (i !== end && matchIdx >= iIndex + textContentItemsStr[i].length) {
+      iIndex += textContentItemsStr[i].length;
+      i++;
+    }
+
+    if (i === textContentItemsStr.length) {
+      console.error("Could not find a matching mapping");
+    }
+
+    const match = {
+      begin: {
+        divIdx: i,
+        offset: matchIdx - iIndex,
+      },
+    };
+
+    // Calculate the end position.
+    matchIdx += matchesLength[m];
+
+    // Somewhat the same array as above, but use > instead of >= to get
+    // the end position right.
+    while (i !== end && matchIdx > iIndex + textContentItemsStr[i].length) {
+      iIndex += textContentItemsStr[i].length;
+      i++;
+    }
+
+    match.end = {
+      divIdx: i,
+      offset: matchIdx - iIndex,
+    };
+    result.push(match);
+  }
+  return result;
+}
+
+
+const renderMatches = (matches, selectedPage) => {
+  // Early exit if there is nothing to render.
+  if (matches.length === 0) {
+    return;
+  }
+  const { findController, pageIdx } = this;
+  const { textContentItemsStr, textDivs } = this;
+
+  const isSelectedPage = pageIdx === findController.selected.pageIdx;
+  const selectedMatchIdx = findController.selected.matchIdx;
+  const highlightAll = findController.state.highlightAll;
+  let prevEnd = null;
+  const infinity = {
+    divIdx: -1,
+    offset: undefined,
+  };
+
+  function beginText(begin, className) {
+    const divIdx = begin.divIdx;
+    textDivs[divIdx].textContent = "";
+    return appendTextToDiv(divIdx, 0, begin.offset, className);
+  }
+
+  function appendTextToDiv(divIdx, fromOffset, toOffset, className) {
+    let div = textDivs[divIdx];
+    if (div.nodeType === Node.TEXT_NODE) {
+      const span = document.createElement("span");
+      div.before(span);
+      span.append(div);
+      textDivs[divIdx] = span;
+      div = span;
+    }
+    const content = textContentItemsStr[divIdx].substring(
+      fromOffset,
+      toOffset
+    );
+    const node = document.createTextNode(content);
+    if (className) {
+      const span = document.createElement("span");
+      span.className = `${className} appended`;
+      span.append(node);
+      div.append(span);
+      return className.includes("selected") ? span.offsetLeft : 0;
+    }
+    div.append(node);
+    return 0;
+  }
+
+  let i0 = selectedMatchIdx,
+    i1 = i0 + 1;
+  if (highlightAll) {
+    i0 = 0;
+    i1 = matches.length;
+  } else if (!isSelectedPage) {
+    // Not highlighting all and this isn't the selected page, so do nothing.
+    return;
+  }
+
+  let lastDivIdx = -1;
+  let lastOffset = -1;
+  for (let i = i0; i < i1; i++) {
+    const match = matches[i];
+    const begin = match.begin;
+    if (begin.divIdx === lastDivIdx && begin.offset === lastOffset) {
+      // It's possible to be in this situation if we searched for a 'f' and we
+      // have a ligature 'ff' in the text. The 'ff' has to be highlighted two
+      // times.
+      continue;
+    }
+    lastDivIdx = begin.divIdx;
+    lastOffset = begin.offset;
+
+    const end = match.end;
+    const isSelected = isSelectedPage && i === selectedMatchIdx;
+    const highlightSuffix = isSelected ? " selected" : "";
+    let selectedLeft = 0;
+
+    // Match inside new div.
+    if (!prevEnd || begin.divIdx !== prevEnd.divIdx) {
+      // If there was a previous div, then add the text at the end.
+      if (prevEnd !== null) {
+        appendTextToDiv(prevEnd.divIdx, prevEnd.offset, infinity.offset);
+      }
+      // Clear the divs and set the content until the starting point.
+      beginText(begin);
+    } else {
+      appendTextToDiv(prevEnd.divIdx, prevEnd.offset, begin.offset);
+    }
+
+    if (begin.divIdx === end.divIdx) {
+      selectedLeft = appendTextToDiv(
+        begin.divIdx,
+        begin.offset,
+        end.offset,
+        "highlight" + highlightSuffix
+      );
+    } else {
+      selectedLeft = appendTextToDiv(
+        begin.divIdx,
+        begin.offset,
+        infinity.offset,
+        "highlight begin" + highlightSuffix
+      );
+      for (let n0 = begin.divIdx + 1, n1 = end.divIdx; n0 < n1; n0++) {
+        textDivs[n0].className = "highlight middle" + highlightSuffix;
+      }
+      beginText(end, "highlight end" + highlightSuffix);
+    }
+    prevEnd = end;
+
+    if (isSelected) {
+      // Attempt to scroll the selected match into view.
+      findController.scrollMatchIntoView({
+        element: textDivs[begin.divIdx],
+        selectedLeft,
+        pageIndex: pageIdx,
+        matchIndex: selectedMatchIdx,
+      });
+    }
+  }
+
+  if (prevEnd) {
+    appendTextToDiv(prevEnd.divIdx, prevEnd.offset, infinity.offset);
+  }
+}
+
+export { renderMatches, normalize, calculateRegExpMatch, convertToRegExpString, CharacterType, getCharacterType, getNormalizeWithNFKC };
   
 

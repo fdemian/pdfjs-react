@@ -36,6 +36,22 @@ const PageControls = (props:PageControlsParams):React.ReactElement => {
        }
     }
 
+    const firstPageFn = () => {
+        const firstPage = renderedPages.find(p => p.number === 1);
+        if(firstPage) {
+          setCurrentPage(1);
+          firstPage.page.current?.scrollIntoView();
+        }
+    }
+
+    const lastPageFn = () => {
+        const lastPage = renderedPages.find(p => p.number === numPages);
+        if(lastPage) {
+          setCurrentPage(numPages);
+          lastPage.page.current?.scrollIntoView();
+        }
+    }
+
     //
     const zoomIn = () => changeZoom(pageScale+0.1);
     const zoomOut = () => changeZoom(pageScale-0.1);
@@ -44,6 +60,8 @@ const PageControls = (props:PageControlsParams):React.ReactElement => {
     <div>
         <button onClick={prevPageFn}>PREV</button> &nbsp;
         <button onClick={nextPageFn}>NEXT</button> &nbsp;
+        <button onClick={firstPageFn}>FIRST</button> &nbsp;
+        <button onClick={lastPageFn}>LAST</button> &nbsp;
         <span>{currentPage}/{numPages}</span> &nbsp;
         &nbsp;
         <button onClick={zoomIn}>Zoom IN</button> &nbsp;

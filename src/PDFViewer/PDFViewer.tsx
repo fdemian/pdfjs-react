@@ -60,8 +60,7 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
       console.clear();
       console.log(pdfRef);
       console.log("===============");
-
-      searchText(pdfRef, renderedPages.length, "URL");
+      searchText(pdfRef, renderedPages.length, "PDF");
     }
 
     return(
@@ -84,7 +83,7 @@ const PDFVIewer = ({url}:PDFVIewerParams): React.ReactElement => {
               scrollbars={pageScale <= 1 ? "vertical" : "vertical, horizontal"}
               style={{ border: '2px solid gainsboro', textAlign:'center', width: '700px', height: '700px', backgroundColor:'gainsboro' }}
           >
-            <span ref={printAreaRef} >
+            <span ref={printAreaRef} style={{textAlign:'center'}} >
               {Array.from(Array(pdfData.numPages)).map((_, index) => <PDFPage pageScale={pageScale} pdf={pdfRef} pageNumber={index+1} addPage={addPage} />)}
             </span>
           </ScrollArea>
